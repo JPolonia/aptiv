@@ -10,4 +10,9 @@ def pdf_to_tb_area(path, page, xl,yl, xr,yr):
     return df
 
 
-34.27,32.78,1649.43,2360.16
+def pdf_to_tb_noPage(path):
+    dt = tabula.read_pdf(path, output_format="dataframe", encoding="utf-8", java_options=None, pandas_options=None,
+                         multiple_tables=True)
+    return dt  #returns list of the multiple dataframes inside a page
+
+

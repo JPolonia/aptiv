@@ -1,6 +1,8 @@
-from get_n_pages import numPages
-import pdf_to_tabula as ptt
-from check_pages import check
+from dim1_parse_pages.get_n_pages import numPages
+from dim1_parse_pages import pdf_to_tabula as ptt
+from dim1_parse_pages.check_pages import check, ignore_complete
+
+
 
 def getPages(path):
     n_pages = numPages(path)
@@ -11,6 +13,7 @@ def getPages(path):
         page = ptt.pdf_to_tb_area(path,x, 34.27,32.78,1649.43,2360.16) #retira informação dentro dos limites da grelha
         page = check(page)
         pages.append(page)
+    pages = ignore_complete(pages)
     return pages
 
 

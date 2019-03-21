@@ -8,18 +8,29 @@ def final_dictionary(dictFile, revAssembliesList, positions, verticalAssemblyDic
             for assembly in range(len(revAssembliesList[mount])):
                 dict[mount][revAssembliesList[mount][assembly]] = {}
                 optional_dict[mount][revAssembliesList[mount][assembly]] = {}
-                for j in range(len(dictFile[mount])):
-                    for k in range(len(dictFile[mount][j])):
-                        if checkDataframe(dictFile[mount][j][k], len(verticalAssemblyDict[mount])):
-                            dataframe = dictFile[mount][j][k]
-                            dict[mount][revAssembliesList[mount][assembly]], dict[mount][revAssembliesList[mount][assembly]], error = partnumbers(dataframe, positions, len(verticalAssemblyDict[mount]))
-
-    return dict
+                for page in range(len(dictFile[mount])):
+                    for table in range(len(dictFile[mount][page])):
+                        if checkDataframe(dictFile[mount][page][table], len(verticalAssemblyDict[mount])):
+                            dataframe = dictFile[mount][page][table]
+                            partnumbers, optional_partnumbers, error = get_partnumbers(dataframe, positions[mount][revAssembliesList[mount][assembly]], len(verticalAssemblyDict[mount]))
+                            for value in partnumbers:
+                                if not value in dict[mount][revAssembliesList[mount][assembly]]:
+                                    dict[mount][revAssembliesList[mount][assembly]][value] = partnumbers[value]
+                                else:
+                                    dict[mount][revAssembliesList[mount][assembly]][value]["qty"] += partnumbers[value]["qty"]
+                            for value in optional_partnumbers:
+                                if not value in optional_dict[mount][revAssembliesList[mount][assembly]]:
+                                    optional_dict[mount][revAssembliesList[mount][assembly]][value] = partnumbers[value]
+                                else:
+                                    optional_dict[mount][revAssembliesList[mount][assembly]][value]["qty"] += partnumbers[value]["qty"]
+    return dict, optional_dict
 
 
 def checkDataframe(dataframe, start_column):
     temp = False
-    if len(dataframe.columns) - start_column-1 == 4:
+    x = len(dataframe.columns)
+    y = start_column
+    if len(dataframe.columns) - start_column == 4:
         temp = True
     return temp
 
@@ -28,7 +39,7 @@ def checkDataframe(dataframe, start_column):
 def get_start_row(dataframe):
     for x in range(len(dataframe[0])):
         if type(dataframe[0][x]) == float:
-            if type(dataframe[0][x]) != float:
+            if type(dataframe[0][x+1]) != float:
                 x = x +1
                 break
     return x
@@ -46,23 +57,22 @@ def add_PartnumberToDictionary(partnumber, description, dictionary):
     return added
 
 
-def partnumbers(dataframe,positions, nColumns_toCheck):
+def get_partnumbers(dataframe, col, nColumns_toCheck):
     partnumbers = {}
     optional_partnumbers = {}
     error = "nothing"
     start_row = get_start_row(dataframe)
-    for x in range(start_row, len(dataframe[0]) - start_row):
-        for i in positions:
-            if dataframe[i][x]==1:
-                partnumber = nColumns_toCheck + 1
-                description = nColumns_toCheck + 2
-                add_error = add_PartnumberToDictionary(partnumber, description, partnumbers)
-                if not add_error:
-                    error = [partnumber, i]
-            elif dataframe[i][x] == "001":
-                partnumber = nColumns_toCheck + 1
-                description = nColumns_toCheck + 2
-                add_error = add_PartnumberToDictionary(optional_partnumbers, description, partnumbers)
-                if not add_error:
-                    error = [partnumber, i]
+    for row in range(start_row, len(dataframe[0])):
+        if dataframe[col][row]=="1":
+            partnumber = dataframe[nColumns_toCheck + 1][row]
+            description = dataframe[nColumns_toCheck + 2][row]
+            add_error = add_PartnumberToDictionary(partnumber, description, partnumbers)
+            if not add_error:
+                error = [partnumber, col]
+        elif dataframe[col][row] == "001":
+            partnumber = nColumns_toCheck + 1
+            description = nColumns_toCheck + 2
+            add_error = add_PartnumberToDictionary(optional_partnumbers, description, partnumbers)
+            if not add_error:
+                error = [partnumber, col]
     return partnumbers, optional_partnumbers, error

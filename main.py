@@ -42,7 +42,10 @@ pass
 #stage5
 #buliding the full dictionary
 from dim5.build_dictionary import final_dictionary
-dictionary = final_dictionary(dictFile,revAssembliesList, positions, verticalAssemblyDict)
+dict_FinalDataFile, dict_OptionalFinalDataFile = final_dictionary(dictFile,revAssembliesList, positions, verticalAssemblyDict)
 
 
 pass
+import json
+f = open("files/dictTeste", "w+")
+f.write(json.dumps(dict_FinalDataFile, indent=4, sort_keys=True))

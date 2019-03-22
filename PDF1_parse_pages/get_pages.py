@@ -1,6 +1,6 @@
-from dim1_parse_pages.get_n_pages import numPages
-from dim1_parse_pages import pdf_to_tabula as ptt
-from dim1_parse_pages.check_pages import check, ignore_complete
+from PDF1_parse_pages.get_n_pages import numPages
+from PDF1_parse_pages import pdf_to_tabula as ptt
+from PDF1_parse_pages.check_pages import check, ignore_complete
 
 
 

@@ -1,0 +1,30 @@
+{
+    "SM1": {
+        "28239685": {
+            "09400971": {
+                "description": "HEADER-18POS,F,V,1M",
+                "qty": 1
+            },
+            "MA010378060": {
+                "description": "MA-SOLDER",
+                "qty": 1
+            }
+        },
+        "28239692": {
+            "09400971": {
+                "description": "HEADER-18POS,F,V,1M",
+                "qty": 1
+            },
+            "MA010378060": {
+                "description": "MA-SOLDER",
+                "qty": 1
+            }
+        },
+        "28239697": {
+            "MA010378060": {
+                "description": "MA-SOLDER",
+                "qty": 1
+            }
+        }
+    }
+}

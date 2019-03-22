@@ -1,6 +1,6 @@
 import re
 import PyPDF2
-from dim1_parse_pages import pdf_to_tabula as parse
+from PDF1_parse_pages import pdf_to_tabula as parse
 
 
 #rotates all pdf pages

@@ -25,7 +25,7 @@ check_assemblies_PDF_Excel(assemblyList,{"SM1" : [10293], "SM2" : [9384], "HP1" 
 
 
 # get assembly list for each place index 0 = SM1... each list item is an array containing the partnumbers
-from dim2.vertical_assembly import retrieve_data
+from PDF2.vertical_assembly import retrieve_data
 checkAssemblyList = retrieve_data(path, pages)
 
 from non_used import data_analysis as da
@@ -34,7 +34,7 @@ from non_used import data_analysis as da
 columns = da.columns(pages[0][3], assemblyList, checkAssemblyList)
 
 #retrive list with separeted data
-from dim2.data_list import select_data
+from PDF2.data_list import select_data
 data_list = select_data(pages)
 
 

@@ -8,8 +8,7 @@ def create_file():
 
 def add_error_item(error):
     error_file = open(path_error, "a")
-    line = error + "\n"
-    error_file.writelines(line)
+    error_file.write(error + "\n")
     error_file.close()
 
 

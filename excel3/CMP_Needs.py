@@ -23,7 +23,7 @@ def get_Features(list_assemblies):  # número part number
     edd = "EDD"
     dwg = "DWG"
     schematic = "SCHEMATIC"
-    for part in list_assemblies:
+    for part in range(len(list_assemblies)):
         partnumber =list_assemblies[part][1]
         description = list_assemblies[part][3]
         if "EDD" in partnumber:

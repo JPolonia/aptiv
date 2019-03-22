@@ -20,10 +20,13 @@ def check_Partnumbers(dictPDF_Partnumbers, dictPDF_OptPartnumbers,  dictExcel_Pa
                 if existsInDictionary(partnumber, assembly, mount, dictExcel_Partnumbers): #cheks if it exists in excel
                     checkDescription(partnumber, assembly, mount, dictPDF_Partnumbers, dictExcel_Partnumbers)
                     checkQty(partnumber, assembly, mount, dictPDF_Partnumbers, dictPDF_OptPartnumbers, dictExcel_Partnumbers)
-                    del dictExcel_Partnumbers[mount][assembly][partnumber]
+                    del dictPDF_Partnumbers[mount][assembly][partnumber]
                 else:
                     error = "ERROR: Partnumber " + partnumber + " does not exist in assembly " + assembly + " " + mount + " in Excel"
                     add_error_item(error)
+
+
+
 
 
 
@@ -32,14 +35,14 @@ def checkDescription(partnumber, assembly, mount, dictPDF_Partnumbers, dictExcel
     descriptionPDF = dictPDF_Partnumbers[mount][assembly][partnumber]["description"]
     descriptionExcel = dictExcel_Partnumbers[mount][assembly][partnumber]["description"]
     if descriptionPDF != descriptionExcel:
-        error = "WARNING: Description of partnumber " + partnumber + " in assembly " + assembly + " " + mount + " does not match between PDF and Excel"
+        error = "ERROR: Description of partnumber " + partnumber + " in assembly " + assembly + " " + mount + "does not match between PDF and Excel"
         add_error_item(error)
 
 def checkQty(partnumber, assembly, mount, dictPDF_Partnumbers, dictPDF_OptPartnumbers, dictExcel_Partnumbers):
-    qtyPDF = int(dictPDF_Partnumbers[mount][assembly][partnumber]["qty"])
-    qtyExcel = int(dictExcel_Partnumbers[mount][assembly][partnumber]["qty"])
+    qtyPDF = dictPDF_Partnumbers[mount][assembly][partnumber]["qty"]
+    qtyExcel = dictExcel_Partnumbers[mount][assembly][partnumber]["qty"]
     if qtyPDF > qtyExcel:
-        error = "ERROR: Quantity of partnumber " +  partnumber + " in assembly " + assembly + " " + mount + " in Excel: " + str(qtyExcel) + " is less than in PDF: " + str(qtyPDF)
+        error = "ERROR: Quantity of partnumber " +  partnumber + " in assembly" + assembly + " " + mount + "in Excel: " + qtyExcel + "is less than in PDF: " + qtyPDF
         add_error_item(error)
     elif qtyPDF < qtyExcel:
         compareOPT(partnumber, assembly, mount, dictPDF_Partnumbers, dictPDF_OptPartnumbers,dictExcel_Partnumbers)
@@ -47,16 +50,16 @@ def checkQty(partnumber, assembly, mount, dictPDF_Partnumbers, dictPDF_OptPartnu
 
 
 def compareOPT(partnumber, assembly, mount, dictPDF_Partnumbers, dictPDF_OptPartnumbers,dictExcel_Partnumbers):
-    qtyPDF = (dictPDF_Partnumbers[mount][assembly][partnumber]["qty"])
-    qtyExcel = (dictExcel_Partnumbers[mount][assembly][partnumber]["qty"])
-    qtyOPT = (dictPDF_OptPartnumbers[mount][assembly][partnumber]["qty"])
+    qtyPDF = dictPDF_Partnumbers[mount][assembly][partnumber]["qty"]
+    qtyExcel = dictExcel_Partnumbers[mount][assembly][partnumber]["qty"]
+    qtyOPT = dictPDF_OptPartnumbers[mount][assembly][partnumber]["qty"]
     if not existsInDictionary(partnumber, assembly, mount, dictPDF_OptPartnumbers):
-        error = "ERROR: Quantity of partnumber "+ partnumber + " in assembly "+ assembly + " " + mount + " in Excel: " + str(qtyExcel) + " is higher than in PDF: " + str(qtyPDF)
+        error = "ERROR: Quantity of partnumber "+ partnumber + "in assembly"+ assembly + " " + mount + "in Excel:" + qtyExcel + "is higher than in PDF: " + qtyPDF
         add_error_item(error)
     else:
         qty_OPTplusInserted = qtyPDF + qtyOPT
         if qtyExcel > qty_OPTplusInserted: #checks if qty in excel is higher than the sum of mandatory partnumbers and optional
-            error = "ERROR: Quantity of partnumber "+ partnumber+ " in assembly " + assembly + " " + mount + " in Excel: " + str(qtyExcel) + " is higher than in PDF: "+ str(qtyPDF)
+            error = "ERROR: Quantity of partnumber "+ partnumber+ "in assembly" + assembly + " " + mount + "in Excel:" + qtyExcel + " is higher than in PDF: "+ qtyPDF
             add_error_item(error)
 
 def existsInDictionary(partnumber, assembly, mount, dictionary):
@@ -66,3 +69,4 @@ def existsInDictionary(partnumber, assembly, mount, dictionary):
             if partnumber in dictionary[mount][assembly]:
                 aux = True
     return aux
+

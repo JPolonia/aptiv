@@ -1,7 +1,7 @@
 import re
 import PyPDF2
 from PDF1_parse_pages import pdf_to_tabula as parse
-
+import os
 
 #rotates all pdf pages
 def rotate(path, path_out, degrees):
@@ -55,5 +55,6 @@ def retrieve_data(path, pages):
                 checkAssembly_list.append(getList(path_out, pagenum))
 
     checkAssembly_list.reverse()
+    os.remove(path_out)
     return checkAssembly_list
 

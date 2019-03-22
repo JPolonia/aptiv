@@ -7,7 +7,6 @@ def rev_error(page):
     startColumn = check_start_column(dataframe)
     list_Finders = []
     list_Rev = []
-    dataframe[startColumn + 3][1] = "K"
 
     for row in range(len(dataframe[0])-1, -1, -1):
         if type(dataframe[startColumn][row]) != float:

@@ -5,51 +5,52 @@ import os
 import xlrd
 import json
 
-#Add Errors
-path_error = "files/Errors_List.txt"
-# from ..main import path_error
 
-def create_file():
+# Error functions
+path_error = "files/Errors_List.txt"
+def create_ErrorFile():         # creates a text file for error output
     error_file = open(path_error,"w+")
-    #error_file.write("No Errors")
     error_file.close()
 
 
-def add_error_item(error):
+def add_error_item(error):          # adds error line to error text file
     error_file = open(path_error, "a")
     error_file.write(error + "\n")
     error_file.close()
-#final imprimir no errors
+
+def noErrors():         # checks if there were no added errors to
+    if os.stat(path_error).st_size == 0:
+        add_error_item("No errors/ warnings")
+# End of error functions
 
 
-# 1 Parsing PDF to python
-def check(page):
+
+# Parsing PDF to python functions
+def pageValidation(page):           # checks if page is useful (the pages that have useful tables all have the following string in the the same postion)"
     aux = False
     for x in range(0,len(page) - 1):
         if page[x][0][0] == "If Package name is not available, then up to 15 characters of the geometry name\rwill appear in parentheses":
          aux = True
-    if not aux:
+    if not aux:         # unuseful pages are marked as ignore
         page = "ignore"
     return page
 
 
-
-def ignore_complete(pages):  # assume que o cmp é só uma página e é a ultima não desenho
+def ignore_complete(pages):  # #CMP table is not necessary to analyse
     n_pages = len(pages)
-    i = n_pages
+    pageNumber = n_pages
     aux = False
 
-    while not aux and i > -1:
-        if pages[i - 1] == "ignore":
-            i = i - 1
+    while not aux and pageNumber > -1:          # assuming that CMP page is either last page or is only before ignorable pages
+        if pages[pageNumber - 1] == "ignore":
+            pageNumber = pageNumber - 1
         else:
-            pages[i - 1] = "ignore"
+            pages[pageNumber - 1] = "ignore"
             aux = True
     return pages
 
 
-
-def numPages(path):
+def numPages(path):         #gets number of pages id the PDF file
     from PyPDF2 import PdfFileReader
     pdf_file = open(path, 'rb')
     pdf_reader = PdfFileReader(pdf_file)
@@ -62,11 +63,10 @@ def pdf_to_tb(path, page):
                          multiple_tables=True, pages=page)
     return dt  #returns list of the multiple dataframes inside a page
 
-def pdf_to_tb_area(path, page, xl,yl, xr,yr):
+def pdf_to_tb_area(path, page, xl,yl, xr,yr):  # returns list of dataframes for a specific area
     df = tabula.read_pdf(path, output_format="dataframe", encoding="utf-8", java_options=None, pandas_options=None,
                          multiple_tables=True, pages=page, spreadsheet=True, area=(xl,yl,xr,yr))
     return df
-
 
 def pdf_to_tb_noPage(path):
     dt = tabula.read_pdf(path, output_format="dataframe", encoding="utf-8", java_options=None, pandas_options=None,
@@ -82,15 +82,15 @@ def getPages(path):
     pages[0].append(pdf_to_tb_area(path, 1, 73.01,1743.3,1682.21,2363.14)) #retira info da tabela das datas
     for x in range(2, n_pages +1):
         page = pdf_to_tb_area(path,x, 34.27,32.78,1649.43,2360.16) #retira informação dentro dos limites da grelha
-        page = check(page)
+        page = pageValidation(page)
         pages.append(page)
     pages = ignore_complete(pages)
     return pages
+# End of Parsing PDF to python functions
+
 
 
 # 2 get assemlies with last revision and dataframes for each mount
-
-
 def rev_error(page):
     dataframe = page[3]
     startColumn = check_start_column(dataframe)
@@ -126,9 +126,6 @@ def rev_error(page):
         if counter == 0:
             warning = "Warning: CMP has later revision than all assemblies in finder " + str(finder +1)
             add_error_item(warning)
-
-
-
 
 
 def select_data(pages):
@@ -496,13 +493,16 @@ def PDF(path):
     dict_FinalDataFile, dict_OptionalFinalDataFile, dict_AdditionalFeatures, dict_OptionalAdditionalFeatures = final_dictionary(dictFile,revAssembliesList, positions, verticalAssemblyDict)
 
     f = open("files/InsertedComponents.json", "w+")
-    f.write("Last Revision = " + rev_letter)
+    f.write("Last Revision = " + rev_letter + "\n")
     f.write(json.dumps(dict_FinalDataFile, indent=4, sort_keys=True))
     f = open("files/OptionalComponents.json", "w+")
+    f.write("Last Revision = " + rev_letter + "\n")
     f.write(json.dumps(dict_OptionalFinalDataFile, indent=4, sort_keys=True))
     f = open("files/InsertedAdditionalFeatures.json", "w+")
+    f.write("Last Revision = " + rev_letter + "\n")
     f.write(json.dumps(dict_AdditionalFeatures, indent=4, sort_keys=True))
     f = open("files/OptionalAdditionalFeatures.json", "w+")
+    f.write("Last Revision = " + rev_letter + "\n")
     f.write(json.dumps(dict_OptionalAdditionalFeatures, indent=4, sort_keys=True))
     pass
 
@@ -761,14 +761,14 @@ def EXCEL(path):
 #compare
 
 def compare(list_PDF, list_Excel):  # Pdf has 4 dict and excel has 2
-    dictPDF_Partnumbers = list_PDF[0]
-    dictPDF_OptPartnumbers = list_PDF[1]
+    dictPDF_Components = list_PDF[0]
+    dictPDF_OptComponents = list_PDF[1]
     dictPDF_AdditionalFeatures = list_PDF[2]
     dictPDF_OptAdditionalFeatures = list_PDF[3]
-    dictExcel_Partnumbers = list_Excel[0]
+    dictExcel_Components = list_Excel[0]
     dictExcel_AdditionalFeatures = list_Excel[1]
-    check_Partnumbers(dictPDF_Partnumbers, dictPDF_OptPartnumbers, dictExcel_Partnumbers)
-    #check_AdditionalFeatures(dictPDF_AdditionalFeatures, dictPDF_OptAdditionalFeatures, dictExcel_AdditionalFeatures)
+    check_Partnumbers(dictPDF_Components, dictPDF_OptComponents, dictExcel_Components) #validation of inserted components
+    check_Partnumbers(dictPDF_AdditionalFeatures, dictPDF_OptAdditionalFeatures, dictExcel_AdditionalFeatures) #validation of inserted addtional features
 
 
 
@@ -792,15 +792,13 @@ def checkDescription(partnumber, assembly, mount, dictPDF_Partnumbers, dictExcel
     descriptionPDF = dictPDF_Partnumbers[mount][assembly][partnumber]["description"]
     descriptionExcel = dictExcel_Partnumbers[mount][assembly][partnumber]["description"]
     if descriptionPDF != descriptionExcel:
-        error = "WARNING: Description of partnumber " + partnumber + " in assembly " + assembly + " " + mount + " does not match between PDF and Excel"
-        add_error_item(error)
+        errorDisc(partnumber, assembly, mount)
 
 def checkQty(partnumber, assembly, mount, dictPDF_Partnumbers, dictPDF_OptPartnumbers, dictExcel_Partnumbers):
     qtyPDF = int(dictPDF_Partnumbers[mount][assembly][partnumber]["qty"])
     qtyExcel = int(dictExcel_Partnumbers[mount][assembly][partnumber]["qty"])
     if qtyPDF > qtyExcel:
-        error = "ERROR: Quantity of partnumber " +  partnumber + " in assembly " + assembly + " " + mount + " in Excel: " + str(qtyExcel) + " is less than in PDF: " + str(qtyPDF)
-        add_error_item(error)
+        errorQTY(partnumber, assembly, mount, qtyExcel, qtyPDF)
     elif qtyPDF < qtyExcel:
         compareOPT(partnumber, assembly, mount, dictPDF_Partnumbers, dictPDF_OptPartnumbers,dictExcel_Partnumbers)
 
@@ -811,13 +809,12 @@ def compareOPT(partnumber, assembly, mount, dictPDF_Partnumbers, dictPDF_OptPart
     qtyExcel = (dictExcel_Partnumbers[mount][assembly][partnumber]["qty"])
     qtyOPT = (dictPDF_OptPartnumbers[mount][assembly][partnumber]["qty"])
     if not existsInDictionary(partnumber, assembly, mount, dictPDF_OptPartnumbers):
-        error = "ERROR: Quantity of partnumber "+ partnumber + " in assembly "+ assembly + " " + mount + " in Excel: " + str(qtyExcel) + " is higher than in PDF: " + str(qtyPDF)
-        add_error_item(error)
+        errorQTY(partnumber, assembly, mount, qtyExcel, qtyPDF)
     else:
         qty_OPTplusInserted = qtyPDF + qtyOPT
         if qtyExcel > qty_OPTplusInserted: #checks if qty in excel is higher than the sum of mandatory partnumbers and optional
-            error = "ERROR: Quantity of partnumber "+ partnumber+ " in assembly " + assembly + " " + mount + " in Excel: " + str(qtyExcel) + " is higher than in PDF: "+ str(qtyPDF)
-            add_error_item(error)
+            errorQTY(partnumber, assembly, mount, qtyExcel, qtyPDF)
+
 
 def existsInDictionary(partnumber, assembly, mount, dictionary):
     aux = False
@@ -826,3 +823,13 @@ def existsInDictionary(partnumber, assembly, mount, dictionary):
             if partnumber in dictionary[mount][assembly]:
                 aux = True
     return aux
+
+def errorQTY(partnumber, assembly, mount, qtyExcel, qtyPDF):
+    error = "ERROR: Quantity of partnumber " + partnumber + " in assembly " + assembly + " " + mount + " in Excel: "\
+            +  str(qtyExcel) + " different from quantity in PDF: " + str(qtyPDF)
+    add_error_item(error)
+
+def errorDisc(partnumber, assembly, mount):
+    error = "WARNING: Description of partnumber " + partnumber + " in assembly " + assembly + " " + mount + " does not match between PDF and Excel"
+    add_error_item(error)
+

@@ -1,7 +1,4 @@
-from errors.error_list import create_file
-from PDFMain import PDF
-from ExcelMain import EXCEL
-from Comparison import compare
+from utilities import *
 
 pathPDF = "files/24090330_H.pdf"
 pathExcel = "files/Impact_Report_for_CN1080582853.xls"

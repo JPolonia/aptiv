@@ -37,12 +37,16 @@ if zip:
 
 
 #if pdf:
-list_PDF = PDF(pdf)
+myPDF = classPDF(pdf)
+myPDF.writeJSON()
 #if xls:
-list_Excel = EXCEL(xls)
+myExcel = classExcel(xls)
+myExcel.writeJSON()
 #if xls and pdf:
-compare(list_PDF, list_Excel)
+compare("files/InfoPDF.json", "files/InfoExcel.json")
 
-noErrors()
+
+
+#noErrors()
 
 

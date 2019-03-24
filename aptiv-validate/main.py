@@ -1,4 +1,4 @@
-from utilities import *
+#from utilities import *
 import zipfile
 import os
 
@@ -21,7 +21,7 @@ for file in range(len(list_Files)):
     if list_Files[file].endswith(".zip"):
         zip = list_Files[file]
 
-create_ErrorFile()
+#create_ErrorFile()
 
 if zip:
     zip_ref = zipfile.ZipFile(zip, 'r')
@@ -35,10 +35,9 @@ if zip:
         if pdf and xls:
             break
 
-
+from test import processPDF
 #if pdf:
-myPDF = classPDF(pdf)
-myPDF.writeJSON()
+processPDF(pdf)
 #if xls:
 myExcel = classExcel(xls)
 myExcel.writeJSON()

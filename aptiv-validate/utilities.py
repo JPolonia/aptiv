@@ -6,6 +6,11 @@ import xlrd
 import json
 
 
+rev_letter
+numb_pages
+compare_id
+compare_json
+
 # Error functions
 path_error = "files/Errors_List.txt"
 def create_ErrorFile():         # creates a text file for error output
@@ -25,28 +30,7 @@ def noErrors():         # checks if there were no added errors to
 
 
 
-# Utility fucntions
-# checks at which column starts the partnumbers
-def check_start_column(dataframe):
-    aux = False
-    col = -1
-    while not aux:
-        col += 1
-        if not type(dataframe[col][0]) == float:
-            if not re.match('\d{5,}', dataframe[col][0]):  # cell has to have 5 or more digits
-                aux = True
-    return col
 
-def add_PartnumberToDictionary(partnumber, description, dictionary):
-    added = True
-    if partnumber in dictionary:
-        dictionary[partnumber]["qty"] += 1
-        if dictionary[partnumber]["description"] != description:
-            added = False
-
-    else:
-        dictionary[partnumber] = {"qty": 1, "description": description}
-    return added
 
 #Turning into "Error" into bold
 def bold(error):
@@ -93,7 +77,6 @@ class classPDF:
 
     def __init__(self, path):
         self.path = path
-        self.Npages = self.NumPages(path)
         self.Pages = self.validatedPages(path)   # returns a list of validated pages
         self.RevLetter = self.revLetter(self.Pages)   # returns the letter of last revision
         self.ID = self.IDnumber(self.Pages)   # returns de number to compare with excel (CN)
@@ -526,15 +509,6 @@ class classPDF:
     def writeJSON(self):
         f = open("files/InfoPDF.json", "w+")
         f.write(json.dumps(self.listPDF, indent=4, sort_keys=True))
-        # f = open("files/OptionalComponents.json", "w+")
-        # f.write("Last Revision = " + self.RevLetter + "}" + "\n")
-        # f.write(json.dumps(self.dictOptionalComponents, indent=4, sort_keys=True))
-        # f = open("files/InsertedAdditionalFeatures.json", "w+")
-        # f.write("Last Revision = " + self.RevLetter + "}" + "\n")
-        # f.write(json.dumps(self.dictAdditionalFeatures, indent=4, sort_keys=True))
-        # f = open("files/OptionalAdditionalFeatures.json", "w+")
-        # f.write("Last Revision = " + self.RevLetter + "}" + "\n")
-        # f.write(json.dumps(self.dictOptionalAdditionalFeatures, indent=4, sort_keys=True))
     # Method for Writing dictionaries to json
 
 
@@ -1064,245 +1038,6 @@ class classExcel:
 
 # End of Class Excel
 
-# #Excel
-#
-# # 1 get Assmeblies and tables
-#
-#
-# def get_all(path):
-#
-#     book = xlrd.open_workbook(path)
-#     sheet_EBOM_DATA = book.sheet_by_name("EBOM Data")
-#     sheet_IMD = book.sheet_by_name("ITEM MASTER Data")
-#     dict_RevAssemblies = get_RevAssemblies(sheet_IMD)
-#     dict_DataList=  get_DataList(sheet_EBOM_DATA)
-#
-#     return dict_RevAssemblies, dict_DataList
-#
-#
-#
-# def get_RevAssemblies(sheet):
-#     dict_RevAssembly = {"SM1" : {}, "SM2" : {}, "HP1" : {}, "CMP" : {}}
-#     n_rows = sheet.nrows
-#     for row in range(7, n_rows): #table starts at line 7
-#         name = sheet.cell(row, 0).value
-#         assembly = get_assembly(name)
-#         item_name = sheet.cell(row, 1).value
-#         if "SM1" in item_name:
-#             dict_RevAssembly["SM1"][assembly] = item_name
-#         elif "SM2" in item_name:
-#             dict_RevAssembly["SM2"][assembly] = item_name
-#         elif "HP1" in item_name:
-#             dict_RevAssembly["HP1"][assembly] = item_name
-#         elif "CMP" in item_name:
-#             dict_RevAssembly["CMP"][assembly] = item_name
-#
-#
-#     return dict_RevAssembly
-#
-#
-# def get_assembly(name):
-#
-#     lenth_assembly=0
-#     for chr in range(len(name)):
-#         if name[lenth_assembly]==",":
-#             break
-#         else:
-#             lenth_assembly += 1
-#
-#     assembly=name[:(lenth_assembly)]
-#     return assembly
-#
-#
-# def get_DataList(sheet_EBOMData):
-#     list_Assemblies = Get_Assemblies(sheet_EBOMData)
-#     dict_DataList = {"SM1" : {}, "SM2" : {}, "HP1" : {}, "CMP" : {}}
-#     nRows = sheet_EBOMData.nrows
-#     for list_index in range(len(list_Assemblies)-1): # nao verifica a última tabela
-#         Assembly= list_Assemblies[list_index][1] #assembly number
-#         list_dataList=[]
-#
-#         assemblyRow = list_Assemblies[list_index][0] #position 0 of array in list is the row number
-#         start_row = get_StartRow(sheet_EBOMData, assemblyRow, nRows)
-#         end_row = list_Assemblies[list_index+1][0]-2  #table ends 3 rows above partnumber
-#         for row in range(start_row, end_row):
-#             lineData = sheet_EBOMData.row_values(row, 1, 7)
-#             list_dataList.append(lineData)
-#
-#         description = list_Assemblies[list_index][2]
-#         mount = ""
-#         if "SM1" in description:
-#             mount = "SM1"
-#         elif "SM2" in description:
-#             mount = "SM2"
-#         elif "HP1" in description:
-#             mount = "HP1"
-#         elif "CMP" in description:
-#             mount = "CMP"
-#         dict_DataList[mount][Assembly] = list_dataList
-#
-#
-#     #last table
-#     assemblyRow = list_Assemblies[len(list_Assemblies) - 1][0]
-#     start_row = get_StartRow(sheet_EBOMData, assemblyRow, nRows)
-#     end_row = sheet_EBOMData.nrows
-#     Assembly = list_Assemblies[len(list_Assemblies)-1][1]
-#     list_dataList = []
-#     for row in range(start_row, end_row):
-#         lineData = sheet_EBOMData.row_values(row, 1, 7)
-#         list_dataList.append(lineData)
-#
-#     description = list_Assemblies[len(list_Assemblies)-1][2]
-#     mount = ""
-#     if "SM1" in description:
-#         mount = "SM1"
-#     elif "SM2" in description:
-#         mount = "SM2"
-#     elif "HP1" in description:
-#         mount = "HP1"
-#     elif "CMP" in description:
-#         mount = "CMP"
-#     dict_DataList[mount][Assembly] = list_dataList
-#
-#     return dict_DataList
-#
-#
-#
-# def get_StartRow(sheet, AssemblyRow, lenth_sheet):
-#     for row in range(AssemblyRow, lenth_sheet):
-#         x = sheet.cell(row, 0)
-#         if sheet.cell(row, 0).value == "Ll":
-#             startRow = row+1
-#             break
-#     return startRow
-#
-#
-#
-#
-# def Get_Assemblies(sheet_EBOM_data):
-#     list_Assemblies=[]
-#     nrows = sheet_EBOM_data.nrows
-#     for row in range(nrows):
-#         if sheet_EBOM_data.cell(row, 0).value=="Part Number":
-#             list_Assemblies.append([row, sheet_EBOM_data.cell(row, 1).value, sheet_EBOM_data.cell(row+3, 1).value])
-#     return list_Assemblies #contains star row, assembly number and assembly description
-#
-#
-# def checkCoherence(dict_RevAssemblies, dict_DataList):
-#     for mount in dict_RevAssemblies:
-#         for assembly in dict_RevAssemblies[mount]:
-#             if not assembly in dict_DataList[mount]:
-#                 error = "Error: Assembly: " + str(assembly) + " , " + str(mount) + " from ITEM MASTER Data is not present in " + str(mount) + " in EBOM Data"
-#                 add_error_item(error)
-#
-#
-# def checkCMP(dict_DataList):
-#     if dict_DataList["CMP"] != {}:
-#         retrieveData(dict_DataList["CMP"])
-#
-#
-#
-#
-#
-#
-# def retrieveData(dict_CMPAssemblies):
-#     for assembly in dict_CMPAssemblies:
-#         edd, dwg, schematic = get_Features(dict_CMPAssemblies[assembly])
-#         if edd != "" or dwg != "" or schematic != "":
-#             error = "Assembly: " + assembly + " => CMP is missing " + edd + " " +  dwg + " " + schematic
-#             add_error_item(error)
-#
-#
-# def get_Features(list_assemblies):  # número part number
-#
-#     edd = "EDD"
-#     dwg = "DWG"
-#     schematic = "SCHEMATIC"
-#     for part in range(len(list_assemblies)):
-#         partnumber =list_assemblies[part][1]
-#         description = list_assemblies[part][3]
-#         if "EDD" in partnumber:
-#             edd = ""
-#         elif "DWG" in partnumber:
-#             dwg = ""
-#         elif "SCHEMATIC" in description:
-#             schematic = ""
-#     return edd, dwg, schematic
-#
-#
-# def final_dict(dict_Tables):
-#     dict_Partnumbers = {}
-#     dict_AdditionalFeatures = {}
-#     for mount in dict_Tables:
-#         dict_Partnumbers[mount]={}
-#         dict_AdditionalFeatures[mount]={}
-#         for assembly in dict_Tables[mount]:
-#             dict_Partnumbers[mount][assembly] ={}
-#             dict_AdditionalFeatures[mount][assembly] = {}
-#             table = dict_Tables[mount][assembly]
-#             partnumbers, additional_features = get_partnumbersExcel(table)
-#             for value in partnumbers:
-#                 if not value in dict_Partnumbers[mount][assembly]:
-#                     dict_Partnumbers[mount][assembly][value] = partnumbers[value]
-#                 else:
-#                     erro = "Partnumber repetida em: " + assembly + " em " + mount
-#             for value in additional_features:
-#                 if not value in dict_AdditionalFeatures[mount][assembly]:
-#                     dict_AdditionalFeatures[mount][assembly][value] = additional_features[value]
-#                 else:
-#                     erro = "Partnumber repetida em: " + assembly + " em " + mount
-#
-#     return dict_Partnumbers, dict_AdditionalFeatures
-#
-#
-#
-#
-# def get_partnumbersExcel(table):
-#     partnumbers = {}
-#     additional_features = {}
-#     for item in range(len(table)):
-#         IsNumber=re.match('\d{1,}', table[item][0]) #check if there are digits in de F/N column
-#         if IsNumber:
-#             number = table[item][1]
-#             description = table[item][3]
-#             if not table[item][5]=="PC":
-#                 additional_features[number] = {"qty" : 1, "description" : description}
-#             else:
-#                 qty = table[item][4]
-#                 partnumbers[number] = {"qty": qty, "description": description}
-#     return partnumbers, additional_features
-#
-#
-#
-# #Excel Main
-#
-# def EXCEL(path):
-#     #stage 1 - collect assemblies revised and collect independent tables
-#     dict_RevAssemblies, dict_DataList = get_all(path)
-#     pass
-#
-#
-#     #stage 2 - Checks coherence between ITEM MASTER Data and EBOM Data.
-#     checkCoherence(dict_RevAssemblies, dict_DataList)
-#
-#
-#     #stage 3 - Checks if all the needed components in CMP are in place (DWG,EDD and SCHEMATIC), retrieves and filters Part Numbers, getting the final dictionary to compare with PDF File.
-#     checkCMP(dict_DataList)
-#     dict_Partnumbers, dict_AdditionalFeatures = final_dict(dict_DataList)
-#     pass
-#
-#
-#     f = open("files/ExcelPartnumbers.json", "w+")
-#     f.write(json.dumps(dict_Partnumbers, indent=4, sort_keys=True))
-#     f = open("files/ExcelAdditionalFeatures.json", "w+")
-#     f.write(json.dumps(dict_AdditionalFeatures, indent=4, sort_keys=True))
-#     pass
-#
-#     list_Excel = []
-#     list_Excel.append(dict_Partnumbers)
-#     list_Excel.append(dict_AdditionalFeatures)
-#
-#     return list_Excel
 
 
 #compare

@@ -1,6 +1,7 @@
 #from utilities import *
 import zipfile
 import os
+import json
 
 #pdf = "files/24090330_H.pdf"
 #xls = "files/Impact_Report_for_CN1080582853.xls"
@@ -35,16 +36,25 @@ if zip:
         if pdf and xls:
             break
 
-from test import processPDF
+from processPDF import processPDF
 #if pdf:
-processPDF(pdf)
+jsonPDF = processPDF(pdf)
+with open('InfoPDF.json', 'w') as outfile:
+    json.dump(jsonPDF, outfile)
 #if xls:
-myExcel = classExcel(xls)
-myExcel.writeJSON()
+from processExcel import processExcel
+jsonExcel = processExcel(xls)
+with open('InfoExcel.json', 'w') as outfile:
+    json.dump(jsonExcel, outfile)
 #if xls and pdf:
-compare("files/InfoPDF.json", "files/InfoExcel.json")
+from compare import compare
+errorList = compare(jsonPDF, jsonExcel)
 
-
+from utilities import bold
+for x in range(len(errorList)):
+    error= errorList[x]
+    error = bold(error)
+    print(error)
 
 #noErrors()
 

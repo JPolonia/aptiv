@@ -1,51 +1,5 @@
-import os
-
-
-
-
-
-
-
-#Turning into "Error" into bold
-def bold(error):
-    if error[0:5]=="ERROR" or error[0:5]=="Error":
-        bold1 = "\033[1m"
-        reset = "\033[0;0m"
-        a = bold1 + error + reset
-    return error
-# End of utility fucntions
-
-
-
-# Class Errors
-class Errors:
-
-    def __init__(self, path):  # path="files/Errors_List.txt"
-        self.list=[]
-        #self.path=path
-        self.file=""
-
-    def create_ErrorFile(self):  # creates a text file for error output
-        self.file = open(self.path, "w+")
-        self.file.close()
-
-    def add_error_item(self, error):  # adds error line to error text file
-        self.file = open(self.path, "a")
-        error1=bold(error)
-        self.file.write(error1 + "\n")
-        self.file.close()
-
-    def noErrors(self):  # checks if there were no added errors to
-        if os.stat(self.path).st_size == 0:
-            self.add_error_item("No errors/ warnings")
-
-# End of Class Errors
-
-
 #compare
-
 def compare(InfoPDF, InfoExcel):  # Pdf has 4 dict and excel has 2
-
 
     dictionaryPDF = InfoPDF
     dictionaryExcel = InfoExcel
@@ -126,11 +80,3 @@ def existsInDictionary(partnumber, assembly, mount, dictionary):
                 aux = True
     return aux
 # End of utilty functions dor comparison
-
-
-
-
-
-
-
-

@@ -394,8 +394,10 @@ def processPDF(pathPDF):
     # End of Retreiveing a list of pdf dictionaries
 
     # Writing dictionaries to json
-    compare_json = json.dumps(list_PDF, indent=4, sort_keys=True)
+    #compare_json = json.dumps(list_PDF, indent=4, sort_keys=True)
     #End of Writing dictionaries to json
+    return list_PDF
+#End of processing PDF
 
 
 
